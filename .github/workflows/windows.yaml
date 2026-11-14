@@ -1,0 +1,49 @@
+name: Windows
+on:
+  workflow_dispatch:
+   inputs:
+     code: 
+       required: True
+     Name:
+       required: False
+     Type:
+       type: choice
+       default: None
+       options:
+           - Android Studio
+           - Ripping Tools
+           - Free Fire
+jobs:
+  windows:
+    name: Windows 10
+    runs-on: windows-2022
+
+    steps:
+    - name: Installing Tools
+      shell: pwsh
+      run: |
+
+        switch(${{inputs.Type}}"){
+        "Android Studio" { choco install androidstudio --ignore-checksum}
+        "Ripping Tools" { write-host " RippingTools installation"}
+        "inputs.FreeFire" { 
+          choco install bluestacks --version=5.21.600.1019 --ignore-checksum --no-progress
+          Start-BitsTransfer -Source "https://dl.cdn.freefiremobile.com/live/package/FreeFire.apk" -Destination "C:\\Users\runneradmin\desktop\FreeFire.apk"
+          Start-BitsTransfer -Source "https://drive.usercontent.google.com/download?id=1UpVwzaUKW_QPH1rU6fYSHz9SLPy9qZPM&export=download&authuser=0&confirm=t&uuid=04437c00-f763-4fa6-b19d-b53db90a69a7&at=ALWLOp6EiXgUYg1kcQeDuB5TeTR0%3A1765424759578" -Destination "C:\\Users\runneradmin\desktop\ninjarippernoesis.7z"
+          7z x "C:\\Users\runneradmin\desktop\ninjarippernoesis.7z" -pninjarippernoesis 
+          }
+    - name: setup
+      run: | 
+       $temp = "$Env:COMPUTERNAME"
+       $Env:COMPUTERNAME = "${{ inputs.Name }}"
+       choco install chrome-remote-desktop-host --ignore-checksum --no-progress
+       ${{ inputs.code }} --pin=123456
+       $Env:COMPUTERNAME = "$temp"
+    - name: CountDown
+      run: |
+           $i = 355
+           do {
+             Write-Host $i
+             Sleep 60
+             $i--
+           } while ($i -gt 0)
